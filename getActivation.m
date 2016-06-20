@@ -1,0 +1,1 @@
+function [a]=getActivation(Theta,Input)
