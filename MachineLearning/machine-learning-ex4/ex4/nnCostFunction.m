@@ -66,9 +66,11 @@ Theta2_grad = zeros(size(Theta2));
 % Part 1 implementation
 
 X = [ones(m, 1) X];
-A1=sigmoid(X*Theta1');
+Z1=X*Theta1';
+A1=sigmoid(Z1);
 A1=[ones(rows(A1),1) A1];
-h=sigmoid(A1*Theta2');
+Z2=A1*Theta2';
+h=sigmoid(Z2);
 Y = zeros(size(h));
 for i=1:m
 	Y(i,y(i))=1;
@@ -82,31 +84,29 @@ rCost=(lambda*((2*m)^-1))*(sum(sum(Theta1(:,2:end).^2,"native"),"native")+sum(su
 
 J=J+rCost;
 
-
 % Part 2 implementation
-Theta1_grad=0;
-Theta2_grad=0;
+
+
 
 for j=1:m
-	Input=X(j,:);
-	a1=sigmoid(Input*Theta1');
-	a1=[1 a1];
-	a2=sigmoid(a1*Theta2');
-	y=Y(j,:);
-	delta_3=a2-y;
-	g=a1.*(1-a1);
-	delta_2=((Theta2'*delta_3').*g')';
-	delta_3=delta_3(2:end);
-	delta_2=delta_2(2:end);
-	a2=a2(2:end);
-	a1=a1(2:end);
+	a1=X(j,:);
+	z2=Theta1*a1';
+	a2=sigmoid(z2);
+	a2=[1 ; a2];
+	z3=Theta2*a2;
+	a3=sigmoid(z3);
+	delta_3=a3-Y(j,:)';
+	g_grad2=sigmoidGradient(z2);
+	g_grad2=[1; g_grad2];
+	delta_2=Theta2'*delta_3.*g_grad2;
+	delta_2 = delta_2(2:end);
 	Theta2_grad=Theta2_grad+delta_3*a2';
-	Theta1_grad=Theta1_grad+delta_2*a1';
+	Theta1_grad=Theta1_grad+delta_2*a1;
 end;
-Theta2_grad=(m^-1)*Theta2_grad;
-Theta1_grad=(m^-1)*Theta1_grad;
 
-% -------------------------------------------------------------
+Theta2_grad=(m^-1)*Theta2_grad + lambda*(m^-1)*[zeros(rows(Theta2),1) Theta2(:,2:end)];
+Theta1_grad=(m^-1)*Theta1_grad + lambda*(m^-1)*[zeros(rows(Theta1),1) Theta1(:,2:end)];
+
 
 % =========================================================================
 
